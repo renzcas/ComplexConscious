@@ -1,57 +1,49 @@
-# app/run.py
+import sys, os
 
+# ---------------------------------------------------------
+# FORCE Python to see the project root (Codespaces fix)
+# ---------------------------------------------------------
+ROOT = "/workspaces/ComplexConscious"
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+# ---------------------------------------------------------
+# Normal imports
+# ---------------------------------------------------------
 import numpy as np
+import matplotlib.pyplot as plt
 
 from core.state import State
 from core.energy import Energy
 from core.gradient import Gradient
 from core.dynamics import Dynamics
 
-from geometry.projection import Projection
-from geometry.attractors import Attractors
-from geometry.primes import Primes
-
-from visualization.plane import Plane
-from visualization.spirals import Spirals
-from visualization.heatmap import Heatmap
-from visualization.arrows import Arrows
-
 
 def main():
-    # --- CORE SYSTEM ---
-    state = State(dim=8)
+    # Initialize components
+    state = State()
     energy = Energy()
-    gradient = Gradient(energy)
-    dynamics = Dynamics(gradient, step_size=0.1)
+    gradient = Gradient(energy)      # ⭐ Gradient needs Energy
+    dynamics = Dynamics(gradient)    # ⭐ Dynamics needs Gradient
 
-    # --- GEOMETRY ---
-    projection = Projection(dim=8)
-    attractors = Attractors(gradient)
-    primes = Primes(attractors)
+    steps = 100
+    values = []
 
-    # --- VISUALIZATION ---
-    plane = Plane(size=6)
-    spirals = Spirals(plane, projection)
-    heatmap = Heatmap(plane, projection, energy)
-    arrows = Arrows(plane, projection, gradient)
+    for _ in range(steps):
+        x = state.x
+        e = energy.V(x)
+        g = gradient.compute(x)
+        state.update(g)
+        values.append(e)
 
-    # --- INITIAL STATE ---
-    x = np.random.normal(size=8)
-
-    # --- RUN DYNAMICS ---
-    orbit = []
-    for _ in range(80):
-        orbit.append(x.copy())
-        x = dynamics.step(x)
-
-    # --- DRAW ---
-    heatmap.draw()
-    arrows.draw()
-    spirals.plot_orbit(orbit, color="cyan")
-    spirals.plot_point(x, color="red")
-
-    plane.show()
-
+    plt.plot(values)
+    plt.title("Energy Over Time")
+    plt.xlabel("Step")
+    plt.ylabel("Energy")
+    plt.show()
+#    replace plt.show() wth these lines
+#     plt.savefig("energy_plot.png")
+#     print("Saved plot as energy_plot.png")
 
 if __name__ == "__main__":
     main()

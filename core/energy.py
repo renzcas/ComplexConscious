@@ -1,5 +1,3 @@
-# core/energy.py
-
 import numpy as np
 
 class Energy:
@@ -41,4 +39,3 @@ class Energy:
         V(x) = E(x) + λs * S(x) - λc * C(x)
         """
         return self.E(x) + self.lambda_s * self.S(x) - self.lambda_c * self.C(x)
-s
